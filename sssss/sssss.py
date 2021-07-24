@@ -1,8 +1,10 @@
 """
-The following Python implementation of Shamir's Secret Sharing is
-released into the Public Domain under the terms of CC0 and OWFa:
+The following Python implementation of Shamir's Secret Sharing is released into
+the Public Domain under the terms of CC0 and OWFa:
 https://creativecommons.org/publicdomain/zero/1.0/
 http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0
+
+Functions for static (deterministic) creation and reconstruction of secret shares.
 """
 
 import random
@@ -77,45 +79,41 @@ def _lagrange_interpolate(x, x_s, y_s, p):
     return (_divmod(num, den, p) + p) % p
 
 
-class sssss():
+def share(secret, minimum, shares, prime=_PRIME):
     """
-    Class for static (deterministic) creation and reconstructin of secret shares.
+    Generates a random shamir pool for a given secret, returns share points.
     """
+    random.seed(secret)#.to_bytes(32, 'big'))
+    secret_int = int.from_bytes(secret, 'big')
+    if minimum > shares:
+        raise ValueError("Secret would be irrecoverable.")
+    poly = [secret_int] + [random.randrange(prime - 1) for i in range(minimum - 1)]
+    points = [
+        (i, _eval_at(poly, i, prime))
+        for i in range(1, shares + 1)
+    ]
+    points_bytes = [
+        x.to_bytes(1, 'big') + y.to_bytes(32, 'big')
+        for x, y in points
+    ]
+    return points_bytes
 
-    def make_shares(secret, minimum, shares, prime=_PRIME):
-        """
-        Generates a random shamir pool for a given secret, returns share points.
-        """
-        random.seed(secret)#.to_bytes(32, 'big'))
-        secret_int = int.from_bytes(secret, 'big')
-        if minimum > shares:
-            raise ValueError("Secret would be irrecoverable.")
-        poly = [secret_int] + [random.randrange(prime - 1) for i in range(minimum - 1)]
-        points = [
-            (i, _eval_at(poly, i, prime))
-            for i in range(1, shares + 1)
-        ]
-        points_bytes = [
-            x.to_bytes(1, 'big') + y.to_bytes(32, 'big')
-            for x, y in points
-        ]
-        return points_bytes
 
-    def reconstruct_secret(shares, prime=_PRIME):
-        """
-        Recover the secret from share points
-        (x, y points on the polynomial).
-        """
-        if len(shares) < 2:
-            raise ValueError("need at least two shares")
-        if not len(shares[0]) == 33:
-            raise ValueError("need at least two shares")
-        x_s, y_s = zip(*[
-            (
-                share[0],
-                int.from_bytes(share[1:33], 'big')
-            )
-            for share in shares
-        ])
-        secret_int = _lagrange_interpolate(0, x_s, y_s, prime)
-        return secret_int.to_bytes(32, 'big').decode('ascii')
+def reconstruct(shares, prime=_PRIME):
+    """
+    Recover the secret from share points
+    (x, y points on the polynomial).
+    """
+    if len(shares) < 2:
+        raise ValueError("need at least two shares")
+    if not len(shares[0]) == 33:
+        raise ValueError("need at least two shares")
+    x_s, y_s = zip(*[
+        (
+            share[0],
+            int.from_bytes(share[1:33], 'big')
+        )
+        for share in shares
+    ])
+    secret_int = _lagrange_interpolate(0, x_s, y_s, prime)
+    return secret_int.to_bytes(32, 'big').decode('ascii')

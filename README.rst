@@ -23,10 +23,10 @@ The library can be imported in the usual ways::
 
 .. code-block:: python
 
-    from sss import make_shares, reconstruct_secret
+    from sssss import share, reconstruct
 
     secret = b'Correct. Horse. Battery. Staple.'
-    shares = make_shares(secret, minimum=3, shares=6)
+    shares = share(secret, minimum=3, shares=6)
 
     print('Secret:', secret)
     print('Shares:')
@@ -35,10 +35,9 @@ The library can be imported in the usual ways::
             print('', '', share)
 
     print('Secret recovered from minimum subset of shares:',
-          reconstruct_secret(shares[:3]))
+          reconstruct(shares[:3]))
     print('Secret recovered from a different subset of shares:',
-          reconstruct_secret([shares[1], shares[3], shares[5]]))
-
+          reconstruct([shares[1], shares[3], shares[5]]))
 
 Versioning
 ----------

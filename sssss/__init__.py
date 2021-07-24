@@ -1,2 +1,2 @@
-"""Allow users to build fountains values directly."""
-from sssss.sssss import sssss
+"""Allow users to access sssss directly."""
+from sssss.sssss import share, reconstruct
