@@ -6,7 +6,7 @@ Static (version of) Shamir's Secret Sharing Scheme
 
 |pypi|
 
-.. |pypi| image:: https://badge.fury.io/py/sssss.svg
+.. |pypi| image:: https://badge.fury.io/py/sssss.svg#
    :target: https://badge.fury.io/py/sssss
    :alt: PyPI version and link.
 
